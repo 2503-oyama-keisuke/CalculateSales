@@ -11,6 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author trainee1276
+ *
+ */
 public class CalculateSales {
 
 	// 支店定義ファイル名
@@ -45,14 +49,14 @@ public class CalculateSales {
 		List<File> rcdFiles = new ArrayList<>();
 
 		for (int i = 0; i < files.length; i++) {
-			if (files[i].getName().matches("^\\d{8}.rcd$")) {
+			if (files[i].getName().matches("^\\d{8}[.]rcd$")) {
 				rcdFiles.add(files[i]);
 			}
 		}
 		BufferedReader br = null;
 
-		try {
-			for (int i = 0; i < rcdFiles.size(); i++) {
+		for (int i = 0; i < rcdFiles.size(); i++) {
+			try {
 				FileReader fr = new FileReader(rcdFiles.get(i));
 				br = new BufferedReader(fr);
 				List<String> saleData = new ArrayList<>();
@@ -64,18 +68,17 @@ public class CalculateSales {
 				long fileSale = Long.parseLong(saleData.get(1));
 				Long saleAmount = branchSales.get(saleData.get(0)) + fileSale;
 				branchSales.replace(saleData.get(0), saleAmount);
-			}
-
-		} catch (IOException e) {
-			System.out.println(UNKNOWN_ERROR);
-			return;
-		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-					System.out.println(UNKNOWN_ERROR);
-					return;
+			} catch (IOException e) {
+				System.out.println(UNKNOWN_ERROR);
+				return;
+			} finally {
+				if (br != null) {
+					try {
+						br.close();
+						} catch (IOException e) {
+							System.out.println(UNKNOWN_ERROR);
+							return;
+						}
 				}
 			}
 		}
@@ -84,7 +87,6 @@ public class CalculateSales {
 		if (!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
 			return;
 		}
-
 	}
 
 	/**
@@ -96,8 +98,7 @@ public class CalculateSales {
 	 * @param 支店コードと売上金額を保持するMap
 	 * @return 読み込み可否
 	 */
-	private static boolean readFile(String path, String fileName, Map<String, String> branchNames,
-			Map<String, Long> branchSales) {
+	private static boolean readFile(String path, String fileName, Map<String, String> branchNames,Map<String, Long> branchSales) {
 		BufferedReader br = null;
 
 		try {
@@ -142,8 +143,7 @@ public class CalculateSales {
 	 * @param 支店コードと売上金額を保持するMap
 	 * @return 書き込み可否
 	 */
-	private static boolean writeFile(String path, String fileName, Map<String, String> branchNames,
-			Map<String, Long> branchSales) {
+	private static boolean writeFile(String path, String fileName, Map<String, String> branchNames,Map<String, Long> branchSales) {
 		// ※ここに書き込み処理を作成してください。(処理内容3-1)
 		BufferedWriter bw = null;
 
