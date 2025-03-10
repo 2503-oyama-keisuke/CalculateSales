@@ -75,10 +75,10 @@ public class CalculateSales {
 				if (br != null) {
 					try {
 						br.close();
-						} catch (IOException e) {
+					} catch (IOException e) {
 							System.out.println(UNKNOWN_ERROR);
 							return;
-						}
+					}
 				}
 			}
 		}
