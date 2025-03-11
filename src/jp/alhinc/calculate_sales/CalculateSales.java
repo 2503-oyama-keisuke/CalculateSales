@@ -33,6 +33,9 @@ public class CalculateSales {
 	 *
 	 * @param コマンドライン引数
 	 */
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		if (args.length != 1) {
 			System.out.println(UNKNOWN_ERROR);
@@ -71,26 +74,26 @@ public class CalculateSales {
 				while ((line = br.readLine()) != null) {
 					saleData.add(line);
 				}
+				if (!branchNames.containsKey(saleData.get(0))) {
+					System.out.println(rcdFiles.get(i) + "の支店コードが不正です");
+					return;
+				}
 				if (saleData.size() != 2) {
 					System.out.println(rcdFiles.get(i) + "のフォーマットが不正です");
 					return;
-				} else if (!saleData.get(1).matches("^\\d+$")) {
+				}
+				if (!saleData.get(1).matches("^\\d+$")) {
 					System.out.println(UNKNOWN_ERROR);
 					return;
-				} else {
-					long fileSale = Long.parseLong(saleData.get(1));
-					Long saleAmount = branchSales.get(saleData.get(0)) + fileSale;
-					if (saleAmount >= 10000000000L) {
-						System.out.println("合計金額が10桁を超えました");
-						return;
-					} else {
-						branchSales.replace(saleData.get(0), saleAmount);
-						if (!branchNames.containsKey(saleData.get(0))) {
-							System.out.println(rcdFiles.get(i) + "の支店コードが不正です");
-							return;
-						}
-					}
 				}
+
+				long fileSale = Long.parseLong(saleData.get(1));
+				Long saleAmount = branchSales.get(saleData.get(0)) + fileSale;
+				if (saleAmount >= 10000000000L) {
+					System.out.println("合計金額が10桁を超えました");
+					return;
+				}
+				branchSales.replace(saleData.get(0), saleAmount);
 
 			} catch (IOException e) {
 				System.out.println(UNKNOWN_ERROR);
@@ -131,24 +134,22 @@ public class CalculateSales {
 			if (!file.exists()) {
 				System.out.println(FILE_NOT_EXIST);
 				return false;
-			} else {
-				FileReader fr = new FileReader(file);
-				br = new BufferedReader(fr);
+			}
+			FileReader fr = new FileReader(file);
+			br = new BufferedReader(fr);
 
-				String line;
-				// 一行ずつ読み込む
-				while ((line = br.readLine()) != null) {
-					// ※ここの読み込み処理を変更してください。(処理内容1-2)
-					String[] branchItems = line.split(",");
+			String line;
+			// 一行ずつ読み込む
+			while ((line = br.readLine()) != null) {
+				// ※ここの読み込み処理を変更してください。(処理内容1-2)
+				String[] branchItems = line.split(",");
 
-					if (branchItems.length != 2 || !branchItems[0].matches("^\\d{3}$")) {
-						System.out.println(FILE_INVALID_FORMAT);
-						return false;
-					} else {
-						branchNames.put(branchItems[0], branchItems[1]);
-						branchSales.put(branchItems[0], 0L);
-					}
+				if (branchItems.length != 2 || !branchItems[0].matches("^\\d{3}$")) {
+					System.out.println(FILE_INVALID_FORMAT);
+					return false;
 				}
+				branchNames.put(branchItems[0], branchItems[1]);
+				branchSales.put(branchItems[0], 0L);
 			}
 
 		} catch (IOException e) {
