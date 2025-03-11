@@ -34,6 +34,10 @@ public class CalculateSales {
 	 * @param コマンドライン引数
 	 */
 	public static void main(String[] args) {
+		if (args.length != 1) {
+			System.out.println(UNKNOWN_ERROR);
+			return;
+		}
 		// 支店コードと支店名を保持するMap
 		Map<String, String> branchNames = new HashMap<>();
 		// 支店コードと売上金額を保持するMap
@@ -48,11 +52,13 @@ public class CalculateSales {
 		File[] files = new File(args[0]).listFiles();
 		List<File> rcdFiles = new ArrayList<>();
 
+		// ファイル配列から条件に該当するrcdファイルをリストへ格納
 		for (int i = 0; i < files.length; i++) {
-			if (files[i].getName().matches("^\\d{8}[.]rcd$")) {
+			if (files[i].isFile() && files[i].getName().matches("^\\d{8}\\.rcd$")) {
 				rcdFiles.add(files[i]);
 			}
 		}
+
 		BufferedReader br = null;
 
 		for (int i = 0; i < rcdFiles.size(); i++) {
@@ -65,9 +71,27 @@ public class CalculateSales {
 				while ((line = br.readLine()) != null) {
 					saleData.add(line);
 				}
-				long fileSale = Long.parseLong(saleData.get(1));
-				Long saleAmount = branchSales.get(saleData.get(0)) + fileSale;
-				branchSales.replace(saleData.get(0), saleAmount);
+				if (saleData.size() != 2) {
+					System.out.println(rcdFiles.get(i) + "のフォーマットが不正です");
+					return;
+				} else if (!saleData.get(1).matches("^\\d+$")) {
+					System.out.println(UNKNOWN_ERROR);
+					return;
+				} else {
+					long fileSale = Long.parseLong(saleData.get(1));
+					Long saleAmount = branchSales.get(saleData.get(0)) + fileSale;
+					if (saleAmount >= 10000000000L) {
+						System.out.println("合計金額が10桁を超えました");
+						return;
+					} else {
+						branchSales.replace(saleData.get(0), saleAmount);
+						if (!branchNames.containsKey(saleData.get(0))) {
+							System.out.println(rcdFiles.get(i) + "の支店コードが不正です");
+							return;
+						}
+					}
+				}
+
 			} catch (IOException e) {
 				System.out.println(UNKNOWN_ERROR);
 				return;
@@ -76,8 +100,8 @@ public class CalculateSales {
 					try {
 						br.close();
 					} catch (IOException e) {
-							System.out.println(UNKNOWN_ERROR);
-							return;
+						System.out.println(UNKNOWN_ERROR);
+						return;
 					}
 				}
 			}
@@ -98,22 +122,33 @@ public class CalculateSales {
 	 * @param 支店コードと売上金額を保持するMap
 	 * @return 読み込み可否
 	 */
-	private static boolean readFile(String path, String fileName, Map<String, String> branchNames,Map<String, Long> branchSales) {
+	private static boolean readFile(String path, String fileName, Map<String, String> branchNames,
+			Map<String, Long> branchSales) {
 		BufferedReader br = null;
 
 		try {
 			File file = new File(path, fileName);
-			FileReader fr = new FileReader(file);
-			br = new BufferedReader(fr);
+			if (!file.exists()) {
+				System.out.println(FILE_NOT_EXIST);
+				return false;
+			} else {
+				FileReader fr = new FileReader(file);
+				br = new BufferedReader(fr);
 
-			String line;
-			// 一行ずつ読み込む
-			while ((line = br.readLine()) != null) {
-				// ※ここの読み込み処理を変更してください。(処理内容1-2)
-				String[] branchItems = line.split(",");
+				String line;
+				// 一行ずつ読み込む
+				while ((line = br.readLine()) != null) {
+					// ※ここの読み込み処理を変更してください。(処理内容1-2)
+					String[] branchItems = line.split(",");
 
-				branchNames.put(branchItems[0], branchItems[1]);
-				branchSales.put(branchItems[0], 0L);
+					if (branchItems.length != 2 || !branchItems[0].matches("^\\d{3}$")) {
+						System.out.println(FILE_INVALID_FORMAT);
+						return false;
+					} else {
+						branchNames.put(branchItems[0], branchItems[1]);
+						branchSales.put(branchItems[0], 0L);
+					}
+				}
 			}
 
 		} catch (IOException e) {
@@ -143,7 +178,8 @@ public class CalculateSales {
 	 * @param 支店コードと売上金額を保持するMap
 	 * @return 書き込み可否
 	 */
-	private static boolean writeFile(String path, String fileName, Map<String, String> branchNames,Map<String, Long> branchSales) {
+	private static boolean writeFile(String path, String fileName, Map<String, String> branchNames,
+			Map<String, Long> branchSales) {
 		// ※ここに書き込み処理を作成してください。(処理内容3-1)
 		BufferedWriter bw = null;
 
