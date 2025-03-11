@@ -67,15 +67,12 @@ public class CalculateSales {
 			}
 		}
 		Collections.sort(rcdFiles);
-		List<Integer> fileNums = new ArrayList<>();
 
-		for (int i = 0; i < rcdFiles.size(); i++) {
-			String fileName = rcdFiles.get(i).getName();
-			String[] fileItems = fileName.split("\\.");
-			fileNums.add(Integer.parseInt(fileItems[0]));
-		}
-		for (int i = 0; i < fileNums.size() - 1; i++) {
-			if (fileNums.get(i + 1) - fileNums.get(i) != 1) {
+		for (int i = 0; i < rcdFiles.size() - 1; i++) {
+			int former = Integer.parseInt(rcdFiles.get(i).getName().substring(0, 8));
+			int latter = Integer.parseInt(rcdFiles.get(i + 1).getName().substring(0, 8));
+
+			if (latter - former != 1) {
 				System.out.println(SERIAL_NUMBER_ERROR);
 				return;
 			}
