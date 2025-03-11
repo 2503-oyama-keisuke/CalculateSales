@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,10 @@ public class CalculateSales {
 	private static final String UNKNOWN_ERROR = "予期せぬエラーが発生しました";
 	private static final String FILE_NOT_EXIST = "支店定義ファイルが存在しません";
 	private static final String FILE_INVALID_FORMAT = "支店定義ファイルのフォーマットが不正です";
+	private static final String SERIAL_NUMBER_ERROR = "売上ファイル名が連番になっていません";
+	private static final String FILE_ERROR_FORMAT = "のフォーマットが不正です";
+	private static final String BRACHCODE_ERROR = "の支店コードが不正です";
+	private static final String AMOUNT_OVER = "合計金額が10桁を超えました";
 
 	/**
 	 * メインメソッド
@@ -61,6 +66,20 @@ public class CalculateSales {
 				rcdFiles.add(files[i]);
 			}
 		}
+		Collections.sort(rcdFiles);
+		List<Integer> fileNums = new ArrayList<>();
+
+		for (int i = 0; i < rcdFiles.size(); i++) {
+			String fileName = rcdFiles.get(i).getName();
+			String[] fileItems = fileName.split("\\.");
+			fileNums.add(Integer.parseInt(fileItems[0]));
+		}
+		for (int i = 0; i < fileNums.size() - 1; i++) {
+			if (fileNums.get(i + 1) - fileNums.get(i) != 1) {
+				System.out.println(SERIAL_NUMBER_ERROR);
+				return;
+			}
+		}
 
 		BufferedReader br = null;
 
@@ -74,12 +93,12 @@ public class CalculateSales {
 				while ((line = br.readLine()) != null) {
 					saleData.add(line);
 				}
-				if (!branchNames.containsKey(saleData.get(0))) {
-					System.out.println(rcdFiles.get(i) + "の支店コードが不正です");
+				if (saleData.size() != 2) {
+					System.out.println(rcdFiles.get(i) + FILE_ERROR_FORMAT);
 					return;
 				}
-				if (saleData.size() != 2) {
-					System.out.println(rcdFiles.get(i) + "のフォーマットが不正です");
+				if (!branchNames.containsKey(saleData.get(0))) {
+					System.out.println(rcdFiles.get(i) + BRACHCODE_ERROR);
 					return;
 				}
 				if (!saleData.get(1).matches("^\\d+$")) {
@@ -90,7 +109,7 @@ public class CalculateSales {
 				long fileSale = Long.parseLong(saleData.get(1));
 				Long saleAmount = branchSales.get(saleData.get(0)) + fileSale;
 				if (saleAmount >= 10000000000L) {
-					System.out.println("合計金額が10桁を超えました");
+					System.out.println(AMOUNT_OVER);
 					return;
 				}
 				branchSales.replace(saleData.get(0), saleAmount);
