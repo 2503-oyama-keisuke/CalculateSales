@@ -43,9 +43,6 @@ public class CalculateSales {
 	 *
 	 * @param コマンドライン引数
 	 */
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		if (args.length != 1) {
 			System.out.println(UNKNOWN_ERROR);
@@ -161,8 +158,10 @@ public class CalculateSales {
 	 *
 	 * @param フォルダパス
 	 * @param ファイル名
-	 * @param 支店コードと支店名を保持するMap
-	 * @param 支店コードと売上金額を保持するMap
+	 * @param コードと支店名を保持するMap
+	 * @param コードと売上金額を保持するMap
+	 * @param コード形式
+	 * @param ファイル種別（支店or商品）
 	 * @return 読み込み可否
 	 */
 	private static boolean readFile(String path, String fileName, Map<String, String> names,
